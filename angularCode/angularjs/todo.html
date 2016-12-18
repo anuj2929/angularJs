@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html ng-app="todoApp">
+<head>
+	<title>this is the todo page</title>
+	<link rel="stylesheet" type="text/css" href="./css/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="./css/bootstrap-theme.css">
+	<script type="text/javascript" src="./js/angular.min.js"></script>
+	<script type="text/javascript">
+		var todoApp=angular.module("todoApp",[]);
+		var model={
+			user: "Anuj",
+			items: [{action:"to tie shoes",done:false},
+					{action:"get Flowers",done:false},
+					{action:"get lover",done:true}
+			]
+		}
+		todoApp.controller("todoCtrl",function($scope){
+			$scope.todo = model;
+
+			$scope.getIncompleteCount=function(){
+				var count=0;
+				angular.forEach($scope.todo.items,function(item){
+					if(!item.done){count++;}
+				});
+				return count;
+			}
+			$scope.warningLevel=function(){
+				return $scope.getIncompleteCount()<3 ? "label-warning": "label-default";
+			}
+			$scope.addItem=function(actionText){
+				if(actionText!=""){
+					$scope.todo.items.push({action:actionText,done:false});
+				}
+			}
+			$scope.deleteAllItems=function(){
+				$scope.todo.items.pop();
+			}
+		});
+	</script>
+</head>
+<body ng-controller='todoCtrl'>
+	<div class="page-header">
+		<h1>{{todo.user}}'s To Do List</h1>
+		<span class="label label-default">{{todo.items.length}}</span>
+		<span class="label" ng-class="warningLevel()" ng-hide="getIncompleteCount()==0">{{getIncompleteCount()}}</span>
+	</div>
+	<div class="panel">
+		<div class="input-group">
+			<input class="form-control" ng-model="actionText"/>
+			<span class="input-group-btn">
+				<button class="btn btn-warning" ng-click="addItem(actionText)">Add</button>
+			</span>
+		</div>
+		<button class="btn" ng-hide="todo.items.length==0" ng-click="deleteAllItems()">Delete</button>
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th>Description</th>
+					<th>Done</th>
+				</tr>
+			</thead>
+
+			<tbody>
+				<tr ng-repeat="item in todo.items| filter:{done:false} | orderBy:'action'">
+					<td>{{item.action}}</td>
+					<td>new name=<input type="text" ng-model="item.action"></td>
+					<td><input type="checkbox" ng-model='item.done'></td>
+					<td>{{item.done}}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</html>
