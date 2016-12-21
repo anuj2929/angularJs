@@ -9,11 +9,25 @@
 		var todoApp=angular.module("todoApp",[]);
 		var model={
 			user: "Anuj",
-			items: [{action:"to tie shoes",done:false},
-					{action:"get Flowers",done:false},
-					{action:"get lover",done:true}
-			]
 		}
+		todoApp.run(function($http){
+			$http.get("json/todo.json").then(function(success){
+				model.items=success.data
+			},function(error){
+
+			});
+		});
+		todoApp.filter("checkedItems",function(){
+			return function(items,showComplete){
+				var resultSet=[];
+				angular.forEach(items,function(item){
+					if(item.done==false||showComplete==true){
+						resultSet.push(item);
+					}
+				});
+				return resultSet;
+			}
+		});
 		todoApp.controller("todoCtrl",function($scope){
 			$scope.todo = model;
 
@@ -28,13 +42,15 @@
 				return $scope.getIncompleteCount()<3 ? "label-warning": "label-default";
 			}
 			$scope.addItem=function(actionText){
-				if(actionText!=""){
+				console.log(actionText);
+				if(actionText!="" && actionText!==undefined){
 					$scope.todo.items.push({action:actionText,done:false});
 				}
 			}
 			$scope.deleteAllItems=function(){
 				$scope.todo.items.pop();
 			}
+
 		});
 	</script>
 </head>
@@ -61,7 +77,7 @@
 			</thead>
 
 			<tbody>
-				<tr ng-repeat="item in todo.items| filter:{done:false} | orderBy:'action'">
+				<tr ng-repeat="item in todo.items| checkedItems: showComplete | orderBy:'action'">
 					<td>{{item.action}}</td>
 					<td>new name=<input type="text" ng-model="item.action"></td>
 					<td><input type="checkbox" ng-model='item.done'></td>
@@ -69,5 +85,8 @@
 				</tr>
 			</tbody>
 		</table>
+		<div class="checkbox-inline">
+			<label><input type="checkbox" ng_model="showComplete"> Show Complete</label>
+		</div>
 	</div>
 </html>
